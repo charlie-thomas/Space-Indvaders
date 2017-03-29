@@ -118,6 +118,20 @@ function moveBullets(){
     }
 }
 
+function checkHits(){
+    for(var i in objs['bullets']){
+        var bul = objs['bullets'][i];
+        for(var j in objs['enemies']){
+            var enemy = objs['enemies'][j];
+            if(bul.x < (enemy.x + enemy.w) && bul.x + 2 > enemy.x && 
+               bul.y < (enemy.y + enemy.h) && bul.y + 10 > enemy.y){
+                objs['bullets'].splice(i, 1);
+                objs['enemies'].splice(j, 1);
+            }
+        }
+    }
+}
+
 function checkEnd(){
     if(Math.max.apply(Math, objs["enemies"].map(function(o){return o.y;})) >= 440){
         clearInterval(screen.interval);
@@ -129,17 +143,21 @@ function gameOver(){
     console.log("GAME OVER");
 }
 
+function drawObjects(){
+    objs['player'].update();
+    for(var i in objs['bullets']) objs['bullets'][i].update();
+    for(var i in objs['enemies']) objs['enemies'][i].update();
+}
+
 function updateScreen() {
     screen.clear();
 
     checkInput();
     moveEnemies();
     moveBullets();
+    checkHits();
     checkEnd();
 
-    // Draw all existing objects
-    objs['player'].update();
-    for(var i in objs['bullets']) objs['bullets'][i].update();
-    for(var i in objs['enemies']) objs['enemies'][i].update();
+    drawObjects();
 }
 
