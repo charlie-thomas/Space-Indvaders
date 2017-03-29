@@ -56,7 +56,7 @@ function component(x, y, image, image2, w, h){
 function createObjects(){
     objs['player'] = new component(230,450, playerImg, playerImg, 15);
     objs['enemies'] = [];
-    speed = 1*level;
+    speed = 0.5*level;
 
     for(var i=1; i<11; i++){
         objs['enemies'].push(new component((i*43)+6, 50, enemy1, enemy1_2, 20, 19))
@@ -93,14 +93,25 @@ function move(dir){
 }
 
 function moveEnemies(){
-    if(Math.max.apply(Math, objs["enemies"].map(function(o){return o.x;})) == 470 || 
-       Math.min.apply(Math, objs["enemies"].map(function(o){return o.x;})) == 10){
+    if(Math.max.apply(Math, objs["enemies"].map(function(o){return o.x;})) >= 470 || 
+       Math.min.apply(Math, objs["enemies"].map(function(o){return o.x;})) <= 10){
         speed = -speed;
         for(var i in objs["enemies"]){
             objs["enemies"][i].x += speed;
-            objs["enemies"][i].y += 8;
+            objs["enemies"][i].y += 10;
         }
     } else for(var i in objs["enemies"]) objs["enemies"][i].x += speed;
+}
+
+function checkEnd(){
+    if(Math.max.apply(Math, objs["enemies"].map(function(o){return o.y;})) >= 440){
+        clearInterval(screen.interval);
+        gameOver();
+    }
+}
+
+function gameOver(){
+    console.log("GAME OVER");
 }
 
 function updateScreen() {
@@ -108,6 +119,7 @@ function updateScreen() {
 
     checkInput();
     moveEnemies();
+    checkEnd();
 
     // Draw all existing objects
     objs['player'].update();
