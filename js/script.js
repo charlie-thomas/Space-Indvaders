@@ -35,12 +35,7 @@ function startGame(){
     screen.start();
 
     // Set interval for enemy animations
-    setInterval(function(){ 
-			anim = false;
-			setTimeout(function(){
-				anim = true;
-			}, 400)
-		}, 800);
+    setInterval(function(){anim = !anim}, 400);
 
     createObjects();
 }
