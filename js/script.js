@@ -136,7 +136,6 @@ function checkHits(){
 
 function checkEnd(){
     if(Math.max.apply(Math, objs["enemies"].map(function(o){return o.y;})) >= 440){
-        clearInterval(screen.interval);
         gameOver();
     } else if ( objs['enemies'].length == 0){
         level += 1;
@@ -145,7 +144,40 @@ function checkEnd(){
 }
 
 function gameOver(){
-    console.log("GAME OVER");
+    clearInterval(gameInterval);
+    screen.clear();
+    var flash = true;
+    var textAnim = setInterval(function(){
+        screen.clear();
+
+        ctx.font="40px Lucida Console";
+		ctx.fillStyle= "white";
+		ctx.textAlign="center"
+		ctx.fillText("Game Over!",250,170);
+		
+		ctx.font="30px Lucida Console";
+		ctx.fillStyle= "white";
+		ctx.textAlign="center"
+		ctx.fillText("SCORE: "+score,250,250);
+
+        if(flash){
+            ctx.font="25px Lucida Console";
+            ctx.fillStyle= "rgb(11,204,0)";
+            ctx.textAlign="center"
+            ctx.fillText("Press Enter to Reset",250,290);
+            flash = false;
+        } else flash = true;
+    }, 500);
+
+    document.addEventListener("keydown",keyDownHandler, false);	
+    function keyDownHandler(e) {
+        if(e.keyCode == 13 ){
+            document.removeEventListener("keydown",keyDownHandler, false);
+            homeScreen();
+            clearInterval(textAnim);
+        }
+    }
+
 }
 
 function drawObjects(){
