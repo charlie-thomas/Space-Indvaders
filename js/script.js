@@ -93,8 +93,8 @@ function move(dir){
 }
 
 function moveEnemies(){
-    if(Math.max.apply(Math, objs["enemies"].map(function(o){return o.x;})) >= 470 || 
-       Math.min.apply(Math, objs["enemies"].map(function(o){return o.x;})) <= 10){
+    if(Math.max.apply(Math, objs["enemies"].map(function(o){return o.x;})) >= 460 || 
+       Math.min.apply(Math, objs["enemies"].map(function(o){return o.x;})) <= 20){
         speed = -speed;
         for(var i in objs["enemies"]){
             objs["enemies"][i].x += speed;
