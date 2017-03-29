@@ -2,9 +2,24 @@
 <html>
     <head>
         <title>Space Invaders</title>
+        <style>
+				canvas {
+					background-color: black;
+					image-rendering: optimizeSpeed;
+					image-rendering: -moz-crisp-edges;
+					image-rendering: -webkit-optimize-contrast;
+					image-rendering: optimize-contrast
+				}
+
+                img {
+                    display: none;             
+                }
+
+			</style>
     </head>
 
     <body>
+        <img id="playerImg" src="images/player.png"/>
         <canvas id="canvas">Your browser does not support HTML5 Canvas.</canvas>
         <script src="js/script.js"></script>
     </body>
