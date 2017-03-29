@@ -17,6 +17,7 @@ var screenRight = 445;
 var anim = true;
 var level = 1;
 var speed;
+var fireBool = true;
 
 function startGame(){
     screen.clear();
@@ -56,8 +57,9 @@ function component(x, y, image, image2, w, h){
 function createObjects(){
     objs['player'] = new component(230,450, playerImg, playerImg, 15);
     objs['enemies'] = [];
-    speed = 0.5*level;
+    objs['bullets'] = [];
 
+    speed = 0.5*level;
     for(var i=1; i<11; i++){
         objs['enemies'].push(new component((i*43)+6, 50, enemy1, enemy1_2, 20, 19))
         objs['enemies'].push(new component((i*43)+5, 80, enemy2, enemy2_2, 22, 16))
@@ -76,7 +78,7 @@ function checkInput(){
         move("r");
     }
     if (32 in keysDown) {
-        fire();
+        if(fireBool) fire();
     }
 }
 
@@ -92,6 +94,12 @@ function move(dir){
     }
 }
 
+function fire(){
+    objs['bullets'].push(new component(objs['player'].x+23, objs['player'].y+2, bullet, bullet));
+    fireBool = false;
+    setTimeout(function(){ fireBool = true}, 600);
+}
+
 function moveEnemies(){
     if(Math.max.apply(Math, objs["enemies"].map(function(o){return o.x;})) >= 460 || 
        Math.min.apply(Math, objs["enemies"].map(function(o){return o.x;})) <= 20){
@@ -101,6 +109,10 @@ function moveEnemies(){
             objs["enemies"][i].y += 10;
         }
     } else for(var i in objs["enemies"]) objs["enemies"][i].x += speed;
+}
+
+function moveBullets(){
+    for(var i in objs['bullets']) objs['bullets'][i].y -= 5;
 }
 
 function checkEnd(){
@@ -119,10 +131,12 @@ function updateScreen() {
 
     checkInput();
     moveEnemies();
+    moveBullets();
     checkEnd();
 
     // Draw all existing objects
     objs['player'].update();
+    for(var i in objs['bullets']) objs['bullets'][i].update();
     for(var i in objs['enemies']) objs['enemies'][i].update();
 }
 
