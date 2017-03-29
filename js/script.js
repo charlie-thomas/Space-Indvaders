@@ -112,7 +112,10 @@ function moveEnemies(){
 }
 
 function moveBullets(){
-    for(var i in objs['bullets']) objs['bullets'][i].y -= 5;
+    for(var i in objs['bullets']){
+        objs['bullets'][i].y -= 5;
+         if(objs['bullets'][i].y < -10) objs['bullets'].splice(i, 1);
+    }
 }
 
 function checkEnd(){
