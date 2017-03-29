@@ -3,7 +3,6 @@ var screen = {
     start: function(){
             this.canvas.width = 500;
             this.canvas.height = 500;
-            this.interval = setInterval(updateScreen, 20);
         },
     clear:  function(){
             ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -16,11 +15,13 @@ var screenLeft = 5;
 var screenRight = 445;
 var anim = true;
 var level = 1;
-var speed;
 var fireBool = true;
+var speed, score, gameInterval;
 
 function startGame(){
     screen.clear();
+
+    gameInterval = setInterval(updateScreen, 20);
 
     // Delete all current objects
     objs = {};
@@ -34,12 +35,10 @@ function startGame(){
 		delete keysDown[e.keyCode];
 	});
 
-    // Initialise canvas
-    screen.start();
-
     // Set interval for enemy animations
     setInterval(function(){anim = !anim}, 400);
 
+    score = 0;
     createObjects();
 }
 
@@ -54,11 +53,7 @@ function component(x, y, image, image2, w, h){
     }
 }
 
-function createObjects(){
-    objs['player'] = new component(230,450, playerImg, playerImg, 15);
-    objs['enemies'] = [];
-    objs['bullets'] = [];
-
+function createEnemies(){
     speed = 0.5*level;
     for(var i=1; i<11; i++){
         objs['enemies'].push(new component((i*43)+6, 50, enemy1, enemy1_2, 20, 19))
@@ -67,6 +62,12 @@ function createObjects(){
         objs['enemies'].push(new component((i*43)+5, 140, enemy3, enemy3_2, 24, 16))
         objs['enemies'].push(new component((i*43)+5, 170, enemy3, enemy3_2, 24, 16))
     }
+}
+function createObjects(){
+    objs['player'] = new component(230,450, playerImg, playerImg, 15);
+    objs['enemies'] = [];
+    objs['bullets'] = [];
+    createEnemies();
 }
 
 function checkInput(){
@@ -127,6 +128,7 @@ function checkHits(){
                bul.y < (enemy.y + enemy.h) && bul.y + 10 > enemy.y){
                 objs['bullets'].splice(i, 1);
                 objs['enemies'].splice(j, 1);
+                score += 10*level;
             }
         }
     }
@@ -136,6 +138,9 @@ function checkEnd(){
     if(Math.max.apply(Math, objs["enemies"].map(function(o){return o.y;})) >= 440){
         clearInterval(screen.interval);
         gameOver();
+    } else if ( objs['enemies'].length == 0){
+        level += 1;
+        createEnemies();
     }
 }
 
@@ -149,9 +154,56 @@ function drawObjects(){
     for(var i in objs['enemies']) objs['enemies'][i].update();
 }
 
+function scoreText(){
+    ctx.font="20px Lucida Console";
+    ctx.fillStyle= "white";
+    ctx.textAlign="left";
+    ctx.fillText("SCORE: "+score,10,30);
+}
+
+function homeScreen(){
+    screen.start();
+    screen.clear();
+
+    var flash = true;
+
+    var textAnim = setInterval(function(){
+        screen.clear();
+
+        ctx.font="40px Lucida Console";
+        ctx.fillStyle= "white";
+        ctx.textAlign="center"
+        ctx.fillText("Space Invaders",250,170);
+
+        ctx.font="10px Lucida Console";
+        ctx.fillStyle= "white";
+        ctx.textAlign="center"
+        ctx.fillText("Arrow Keys: Move",175,400);
+        ctx.fillText("Space: Shoot",325,400);
+
+        if(flash) {
+            ctx.font="25px Lucida Console";
+            ctx.fillStyle= "rgb(11,204,0)";
+            ctx.textAlign="center"
+            ctx.fillText("Press Enter to Play",250,275);
+            flash = false;
+        } else flash = true;
+    },500);
+
+    document.addEventListener("keydown",keyDownHandler, false);	
+    function keyDownHandler(e) {
+        if(e.keyCode == 13 ){
+            document.removeEventListener("keydown",keyDownHandler, false);
+            startGame();
+            clearInterval(textAnim);
+        }
+    }
+}
+
 function updateScreen() {
     screen.clear();
 
+    scoreText();
     checkInput();
     moveEnemies();
     moveBullets();
