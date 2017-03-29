@@ -12,6 +12,8 @@ var screen = {
 var objs = {};
 var ctx = screen.canvas.getContext("2d");
 var keysDown = {};
+var screenLeft = 5;
+var screenRight = 445;
 
 function startGame(){
     screen.clear();
@@ -34,7 +36,7 @@ function startGame(){
     createObjects();
 }
 
-function component(x, y, image, w, h){
+function component(x, y, image, image2, w, h){
     this.x = x;
     this.y = y;
     this.w = w;
@@ -45,7 +47,16 @@ function component(x, y, image, w, h){
 }
 
 function createObjects(){
-    objs['player'] = new component(230, 440, playerImg, 15);
+    objs['player'] = new component(230,450, playerImg, null, 15);
+    objs['enemies'] = [];
+
+    for(var i=1; i<11; i++){
+        objs['enemies'].push(new component((i*43)+6, 50, enemy1, enemy1_2, 20, 19))
+        objs['enemies'].push(new component((i*43)+5, 80, enemy2, enemy2_2, 22, 16))
+        objs['enemies'].push(new component((i*43)+5, 110, enemy2, enemy2_2, 22, 16))
+        objs['enemies'].push(new component((i*43)+5, 140, enemy3, enemy3_2, 24, 16))
+        objs['enemies'].push(new component((i*43)+5, 170, enemy3, enemy3_2, 24, 16))
+    }
 }
 
 function checkInput(){
@@ -63,9 +74,13 @@ function checkInput(){
 
 function move(dir){
     if (dir == "l"){
-        objs['player'].x -= 2;
+        objs['player'].x -= 20;
+        if( objs['player'].x - objs['player'].w <= screenLeft)
+            objs['player'].x = screenLeft + objs['player'].w;
     } else {
-        objs['player'].x += 2;
+        objs['player'].x += 20;
+        if( objs['player'].x + objs['player'].w >= screenRight)
+            objs['player'].x = screenRight - objs['player'].w;
     }
 }
 
@@ -74,6 +89,7 @@ function updateScreen() {
 
     checkInput();
     // Draw all existing objects
-    for(var i in objs) objs[i].update();
+    objs['player'].update();
+    for(var i in objs['enemies']) objs['enemies'][i].update();
 }
 
