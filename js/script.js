@@ -8,8 +8,9 @@ var screen = {
             ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         }
 }
-var objs = {};
 var ctx = screen.canvas.getContext("2d");
+
+var objs = {};
 var keysDown = {};
 var screenLeft = 5;
 var screenRight = 445;
@@ -67,6 +68,7 @@ function createObjects(){
     objs['player'] = new component(230,450, playerImg, playerImg, 15);
     objs['enemies'] = [];
     objs['bullets'] = [];
+    objs['particles'] = [];
     createEnemies();
 }
 
@@ -126,12 +128,46 @@ function checkHits(){
             var enemy = objs['enemies'][j];
             if(bul.x < (enemy.x + enemy.w) && bul.x + 2 > enemy.x && 
                bul.y < (enemy.y + enemy.h) && bul.y + 10 > enemy.y){
+                explosion(enemy.x + enemy.w/2, enemy.y + enemy.h/2, "white");
                 objs['bullets'].splice(i, 1);
                 objs['enemies'].splice(j, 1);
                 score += 10*level;
             }
         }
     }
+}
+
+function explosion(x, y, colour){
+    for(var i=0; i<60; i++){
+        var particle = {
+			x: x,
+			y: y,
+			volx: ((Math.random()*10)+3) * (Math.floor(Math.random()*2) == 1 ? 1 : -1),
+			voly: ((Math.random()*10)+3) * (Math.floor(Math.random()*2) == 1 ? 1 : -1),
+			colour: colour
+		}
+		
+		objs['particles'].push(particle);
+    }
+}
+
+function moveParticles(){
+    console.log(objs['particles']);
+    for(var i in objs['particles']){
+        var p = objs['particles'][i];
+        ctx.beginPath();
+        ctx.rect(p.x, p.y, 4, 4);
+        ctx.fillStyle = p.colour;
+        ctx.fill();
+        p.x += p.volx;
+        p.y += p.voly;
+
+        if(p.x < -20 || p.x > 520 || p.y < -20 || p.y > 520) objs['particles'].splice(i, 1);
+    }
+}
+
+function updateShip(){
+    var prob = Math.floor.apply(Math.random()*5000);
 }
 
 function checkEnd(){
@@ -177,7 +213,6 @@ function gameOver(){
             clearInterval(textAnim);
         }
     }
-
 }
 
 function drawObjects(){
@@ -239,7 +274,9 @@ function updateScreen() {
     checkInput();
     moveEnemies();
     moveBullets();
-    checkHits();
+    checkHits();   
+    moveParticles();
+    createBus();
     checkEnd();
 
     drawObjects();
