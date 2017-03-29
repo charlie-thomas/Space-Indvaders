@@ -14,6 +14,7 @@ var ctx = screen.canvas.getContext("2d");
 var keysDown = {};
 var screenLeft = 5;
 var screenRight = 445;
+var anim = true;
 
 function startGame(){
     screen.clear();
@@ -33,6 +34,14 @@ function startGame(){
     // Initialise canvas
     screen.start();
 
+    // Set interval for enemy animations
+    setInterval(function(){ 
+			anim = false;
+			setTimeout(function(){
+				anim = true;
+			}, 400)
+		}, 800);
+
     createObjects();
 }
 
@@ -42,12 +51,13 @@ function component(x, y, image, image2, w, h){
     this.w = w;
     this.h = h;
     this.update = function(){
-        ctx.drawImage(image,this.x,this.y);
+        if(anim) ctx.drawImage(image2,this.x,this.y);
+        else ctx.drawImage(image,this.x,this.y);
     }
 }
 
 function createObjects(){
-    objs['player'] = new component(230,450, playerImg, null, 15);
+    objs['player'] = new component(230,450, playerImg, playerImg, 15);
     objs['enemies'] = [];
 
     for(var i=1; i<11; i++){
@@ -74,11 +84,11 @@ function checkInput(){
 
 function move(dir){
     if (dir == "l"){
-        objs['player'].x -= 20;
+        objs['player'].x -= 4;
         if( objs['player'].x - objs['player'].w <= screenLeft)
             objs['player'].x = screenLeft + objs['player'].w;
     } else {
-        objs['player'].x += 20;
+        objs['player'].x += 4;
         if( objs['player'].x + objs['player'].w >= screenRight)
             objs['player'].x = screenRight - objs['player'].w;
     }
@@ -88,6 +98,7 @@ function updateScreen() {
     screen.clear();
 
     checkInput();
+
     // Draw all existing objects
     objs['player'].update();
     for(var i in objs['enemies']) objs['enemies'][i].update();
