@@ -15,9 +15,8 @@ var keysDown = {};
 var screenLeft = 5;
 var screenRight = 445;
 var anim = true;
-var level = 1;
 var fireBool = true;
-var speed, score, gameInterval;
+var speed, score, gameInterval, animInterval, level, cooldown;
 
 function startGame(){
     screen.clear();
@@ -37,8 +36,10 @@ function startGame(){
 	});
 
     // Set interval for enemy animations
-    setInterval(function(){anim = !anim}, 400);
-
+    animInterval = setInterval(function(){anim = !anim}, 400);
+    
+    level = 1;
+    cooldown = 500;
     score = 0;
     createObjects();
 }
@@ -134,6 +135,15 @@ function checkHits(){
                 score += 10*level;
             }
         }
+        if(objs['ship']){
+            if(bul.x < (objs['ship'].x + 32) && bul.x + 2 > objs['ship'].x && 
+               bul.y < (objs['ship'].y + 14) && bul.y + 10 > objs['ship'].y){
+                explosion(objs['ship'].x + 16, objs['ship'].y + 7, "red");
+                objs['ship'] = null;
+                objs['bullets'].splice(i, 1);
+                score += 100*level;
+            }
+        }
     }
 }
 
@@ -152,7 +162,6 @@ function explosion(x, y, colour){
 }
 
 function moveParticles(){
-    console.log(objs['particles']);
     for(var i in objs['particles']){
         var p = objs['particles'][i];
         ctx.beginPath();
@@ -167,7 +176,21 @@ function moveParticles(){
 }
 
 function updateShip(){
-    var prob = Math.floor.apply(Math.random()*5000);
+    var prob = Math.floor(Math.random()*1200);
+    cooldown--;
+
+    if(prob == 2 && !objs['ship'] && cooldown<0){
+        objs['ship'] = new component(0, 35, ship, ship);
+        objs['ship'].speed = 1;
+        cooldown = 3000;
+     }
+
+     if(objs['ship']){
+        if(objs['ship'].x >= 460) objs['ship'].speed = -objs['ship'].speed;
+        objs['ship'].x += objs['ship'].speed;
+
+        if(objs['ship'].x <-30) objs['ship'] = null;
+     }
 }
 
 function checkEnd(){
@@ -181,6 +204,7 @@ function checkEnd(){
 
 function gameOver(){
     clearInterval(gameInterval);
+    clearInterval(animInterval);
     screen.clear();
     var flash = true;
     var textAnim = setInterval(function(){
@@ -217,8 +241,10 @@ function gameOver(){
 
 function drawObjects(){
     objs['player'].update();
+    if(objs['ship']) objs['ship'].update();
     for(var i in objs['bullets']) objs['bullets'][i].update();
     for(var i in objs['enemies']) objs['enemies'][i].update();
+
 }
 
 function scoreText(){
@@ -276,7 +302,7 @@ function updateScreen() {
     moveBullets();
     checkHits();   
     moveParticles();
-    createBus();
+    updateShip();
     checkEnd();
 
     drawObjects();
